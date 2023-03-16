@@ -25,7 +25,7 @@ mas tenha em mente que assim qualquer um poderá utilizar seu bot, consequenteme
 '''
 
 telegram_token = '<SEU-TOKEN-DO-TELEGRAM>'
-chatgpt_api_key = '<SUA-API-KEY>'
+chatgpt_api_key = f"Bearer {'<SUA-API-KEY>'}"
 user_id = 000000000 #<SEU-ID-DE-USUARIO> DEVE SER NUMÉRICO
 
 chatgpt_max_tokens = 500
@@ -109,8 +109,14 @@ def handle_audio(message):
     audio = converter_audio(path)
 
     r = sr.Recognizer()
-    with sr.AudioFile(audio) as source:
-        audio_text = r.recognize_google(r.record(source), language=language)
+    
+    try:
+        with sr.AudioFile(audio) as source:
+            audio_text = r.recognize_google(r.record(source), language=language)
+    except sr.UnknownValueError:
+        bot.send_message(message.chat.id, "Audio não compreendido")
+
+        return
 
     bot.send_message(message.chat.id, f"PROMPT: {audio_text}")
 
